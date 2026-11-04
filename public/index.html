@@ -4,171 +4,302 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>腦波對頻</title>
-<meta name="theme-color" content="#101828">
+<meta name="theme-color" content="#eef1f7">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#101828;--card:#1a2540;--ink:#f2efe8;--muted:#98a6c4;--accent:#7c5cff;--accent2:#22d3b6;
-  --gold:#ffc94d;--bad:#ff6b6b;--line:#2a3a60;--field:#0c1324}
+:root{
+  --fog:#eef1f7; --paper:#ffffff; --ink:#1b1f3b; --ink2:#5b6284; --rule:#d9deea; --soft:#f5f7fb;
+  --signal:#3d5afe; --signal-ink:#ffffff; --ok:#0f9d76; --bad:#e5484d;
+  --g1:#3d5afe; --g2:#f7567c; --g3:#e89a00; --g4:#0f9d76; --g5:#9b5de5;
+  --display:"Bricolage Grotesque","PingFang HK","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+  --body:-apple-system,"Segoe UI","PingFang HK","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);
-  font-family:-apple-system,"PingFang HK","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
-body{background:radial-gradient(1200px 500px at 50% -200px,#2a2160 0%,var(--bg) 60%) fixed}
-.wrap{max-width:540px;margin:0 auto;padding:22px 16px 48px}
-h1{font-size:32px;margin:6px 0 2px;letter-spacing:3px}
-h1 .w{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.sub{color:var(--muted);margin:0 0 18px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}
-label{display:block;font-size:14px;color:var(--muted);margin:14px 0 6px}
-label:first-child{margin-top:0}
-input{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--field);color:var(--ink);font-size:17px}
-input:focus{outline:2px solid var(--accent);border-color:transparent}
-.seg{display:flex;flex-wrap:wrap;gap:6px}
-.seg button{flex:1 0 auto;min-width:42px;padding:10px 6px;border-radius:10px;border:1px solid var(--line);
-  background:var(--field);color:var(--ink);font-size:15px;cursor:pointer}
-.seg button.on{background:var(--accent);border-color:var(--accent);font-weight:700}
-.btn{display:block;width:100%;padding:14px;border:0;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;
-  margin-top:14px;background:linear-gradient(90deg,var(--accent),#9b7dff);color:#fff}
-.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
-.btn:disabled{opacity:.4;cursor:not-allowed}
-.row{display:flex;gap:10px}.row>*{flex:1}
-.code{font-size:44px;letter-spacing:10px;font-weight:800;text-align:center;color:var(--accent2);margin:2px 0}
-.small{font-size:13px;color:var(--muted)}
-.center{text-align:center}
-.players{list-style:none;padding:0;margin:8px 0 0}
-.players li{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);gap:8px}
-.players li:last-child{border:0}
-.tag{font-size:12px;padding:3px 9px;border-radius:99px;background:var(--field);color:var(--muted);white-space:nowrap}
-.tag.ok{background:var(--accent2);color:#06231e}.tag.host{background:var(--accent);color:#fff}.tag.off{color:var(--bad)}
-.timer{font-size:52px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums}
-.timer.low{color:var(--bad)}
-.bar{height:6px;background:var(--field);border-radius:99px;overflow:hidden;margin-bottom:10px}
-.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .25s linear}
-.prev{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0 4px}
-.chip{background:var(--field);border:1px solid var(--line);border-radius:99px;padding:6px 13px;font-size:16px}
-.chip.topic{border-color:var(--gold);color:var(--gold)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;margin-top:10px}
-.word{background:var(--field);border:1px solid var(--line);border-radius:14px;padding:11px;text-align:center;animation:pop .35s ease both}
-.word b{display:block;font-size:19px;margin:3px 0;word-break:break-all}
-.word.hit{border-color:var(--accent2)}
-.word.none b{color:var(--bad);font-size:14px}
-@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
-.match{background:rgba(34,211,182,.12);border:1px solid rgba(34,211,182,.4);border-radius:12px;padding:9px 12px;margin-top:8px;font-size:15px}
-.big{font-size:38px;font-weight:800;margin:6px 0;text-align:center}
-.big.sync{color:var(--accent2)}.big.fail{color:var(--bad)}
-.hist div{padding:6px 0;border-bottom:1px dashed var(--line);font-size:14px}
-.hist div:last-child{border:0}
-.err{color:var(--bad);min-height:20px;margin-top:8px;font-size:14px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);
-  padding:10px 16px;border-radius:99px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
-.toast.show{opacity:1}
+html,body{margin:0;background:var(--fog);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
 .hidden{display:none!important}
-.rules{margin:8px 0 0;padding-left:20px}.rules li{margin:6px 0;color:var(--muted)}
+
+/* top bar */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;max-width:1180px;margin:0 auto;padding:22px 32px 6px}
+.logo{display:flex;align-items:center;gap:12px;font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:.5px}
+.logo svg{flex:none}
+.roombar{display:flex;align-items:center;gap:10px}
+.codechip{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:6px;padding:6px 14px 6px 20px;border-radius:12px;background:var(--paper);border:1px solid var(--rule)}
+.conn{font-size:13px;color:var(--bad);display:flex;align-items:center;gap:6px}
+.conn::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+
+.page{max-width:1180px;margin:0 auto;padding:18px 32px 60px}
+
+/* buttons & inputs */
+.btn{white-space:nowrap;flex:none;border:0;border-radius:12px;padding:13px 22px;font-weight:700;cursor:pointer;background:var(--signal);color:var(--signal-ink);font-size:16px;transition:transform .08s}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.line{background:var(--paper);color:var(--ink);border:1px solid var(--rule)}
+.btn.line:hover{border-color:var(--ink2)}
+.btn.small{padding:9px 14px;font-size:14px;border-radius:10px}
+.btn.wide{width:100%}
+.field{width:100%;padding:13px 15px;border-radius:12px;border:1px solid var(--rule);background:var(--paper);font-size:17px}
+.field:focus{outline:none;border-color:var(--signal);box-shadow:0 0 0 3px rgba(61,90,254,.18)}
+.lab{display:block;font-size:14px;font-weight:600;color:var(--ink2);margin:18px 0 8px}
+.lab:first-of-type{margin-top:0}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{min-width:44px;padding:9px 12px;border-radius:10px;border:1px solid var(--rule);background:var(--paper);cursor:pointer;font-size:15px}
+.seg button:hover{border-color:var(--ink2)}
+.seg button.on{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:700}
+.err{color:var(--bad);min-height:22px;font-size:14px;margin-top:10px}
+
+/* home */
+.home{display:grid;grid-template-columns:1.15fr 1fr;gap:28px;align-items:start}
+.hero h1{font-family:var(--display);font-weight:800;font-size:56px;line-height:1.05;margin:10px 0 14px;letter-spacing:-.5px}
+.hero p{color:var(--ink2);font-size:18px;max-width:34em;margin:0 0 26px}
+.panel{background:var(--paper);border:1px solid var(--rule);border-radius:20px;padding:26px}
+.panel h2{font-size:18px;margin:0 0 16px}
+.joinrow{display:flex;gap:10px}.joinrow .field{flex:1;min-width:0}
+.joinrow .field{font-family:var(--display);font-weight:700;letter-spacing:6px;text-transform:uppercase}
+.how{margin:0;padding:0;list-style:none;counter-reset:s}
+.how li{counter-increment:s;display:grid;grid-template-columns:30px 1fr;gap:10px;padding:10px 0;border-top:1px solid var(--rule);color:var(--ink2)}
+.how li:first-child{border-top:0}
+.how li::before{content:counter(s);font-family:var(--display);font-weight:800;color:var(--signal);font-size:18px}
+.how b{color:var(--ink)}
+.sidecol{display:grid;gap:20px}
+
+/* room layout */
+.room{display:grid;grid-template-columns:1fr 330px;gap:24px;align-items:start}
+.stage{background:var(--paper);border:1px solid var(--rule);border-radius:24px;padding:32px 36px;min-height:460px;position:relative;overflow:hidden}
+.side{display:grid;gap:20px}
+.box{background:var(--paper);border:1px solid var(--rule);border-radius:16px;padding:18px 20px}
+.box h3{font-size:15px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:baseline}
+.box h3 span{font-weight:500;color:var(--ink2);font-size:14px}
+.plist{list-style:none;margin:0;padding:0}
+.plist li{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--soft)}
+.plist li:first-child{border-top:0}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:700;color:#fff;flex:none}
+.pname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pname em{font-style:normal;color:var(--ink2);font-size:13px;margin-left:4px}
+.st{font-size:12px;padding:3px 9px;border-radius:99px;background:var(--soft);color:var(--ink2);white-space:nowrap}
+.st.done{background:#e3f6ef;color:var(--ok)}
+.st.host{background:#e6eaff;color:var(--signal)}
+.st.off{background:#fde8e8;color:var(--bad)}
+.hist{list-style:none;margin:0;padding:0;max-height:340px;overflow:auto}
+.hist li{padding:8px 0;border-top:1px solid var(--soft);font-size:14px;color:var(--ink2)}
+.hist li:first-child{border-top:0}
+.hist b{color:var(--ink);margin-right:6px}
+.hist .pass{color:var(--ok);font-weight:700}
+.invite{display:grid;gap:8px}
+.invite .url{font-size:13px;color:var(--ink2);word-break:break-all;background:var(--soft);border-radius:10px;padding:8px 10px}
+
+/* stage content */
+.kicker{color:var(--ink2);font-size:15px;margin:0 0 6px}
+.headline{font-family:var(--display);font-weight:800;font-size:40px;line-height:1.1;margin:0 0 18px;letter-spacing:-.3px}
+.lobbygrid{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 26px}
+.lobbygrid .seat{display:flex;align-items:center;gap:8px;padding:8px 14px 8px 8px;border-radius:99px;border:1px solid var(--rule);background:var(--soft);font-weight:600}
+.lobbygrid .seat.empty{border-style:dashed;background:transparent;color:var(--ink2);font-weight:500;padding-left:14px}
+.actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hint{color:var(--ink2);font-size:14px}
+
+.timeline{position:absolute;left:0;right:0;top:0;height:6px;background:var(--soft)}
+.timeline i{display:block;height:100%;background:var(--signal);transition:width .25s linear}
+.timeline.low i{background:var(--bad)}
+.wtop{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:22px}
+.clock{font-family:var(--display);font-weight:800;font-size:64px;line-height:.9;font-variant-numeric:tabular-nums}
+.clock.low{color:var(--bad)}
+.cue{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 26px}
+.cue .w{font-family:var(--display);font-weight:700;font-size:22px;padding:8px 18px;border-radius:14px;background:var(--soft);border:1px solid var(--rule)}
+.cue .w.topic{background:#fff6e0;border-color:#f3d48a}
+.cue .plus{color:var(--ink2);font-size:22px}
+.entry{display:flex;gap:12px}.entry .field{flex:1;min-width:0}
+.entry .field{font-size:22px;padding:16px 18px;font-family:var(--display);font-weight:700}
+.entry .btn{font-size:18px;padding:0 30px}
+.sent{display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:16px;background:var(--soft)}
+.sent .myword{font-family:var(--display);font-weight:800;font-size:28px}
+.progress{margin-top:22px;color:var(--ink2);font-size:15px}
+.dots{display:flex;gap:6px;margin-top:8px}
+.dots i{width:22px;height:6px;border-radius:3px;background:var(--rule)}
+.dots i.on{background:var(--ok)}
+
+.verdict{font-family:var(--display);font-weight:800;font-size:44px;line-height:1.1;margin:0 0 20px}
+.verdict.pass{color:var(--ok)}
+.verdict.fail{color:var(--bad)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.tile{border-radius:16px;padding:14px 16px;background:var(--soft);border:2px solid transparent;animation:in .3s ease both}
+.tile .who{font-size:13px;color:var(--ink2);display:flex;align-items:center;gap:6px}
+.tile .word{font-family:var(--display);font-weight:800;font-size:26px;line-height:1.2;margin-top:4px;word-break:break-all}
+.tile.none .word{font-size:16px;color:var(--bad);font-family:var(--body);font-weight:600}
+.tile.grp{background:#fff}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.legend span{font-size:14px;padding:6px 12px;border-radius:99px;color:#fff;font-weight:600}
+.nomatch{margin-top:18px;color:var(--ink2)}
+.after{margin-top:26px}
+@keyframes in{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.tile{animation:none}.timeline i{transition:none}}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:12px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:5}
+.toast.show{opacity:1}
+
+/* phones / narrow windows */
+@media (max-width:900px){
+  .home,.room{grid-template-columns:1fr}
+  .hero h1{font-size:40px}
+  .bar,.page{padding-left:16px;padding-right:16px}
+  .stage{padding:26px 20px;min-height:0}
+  .headline{font-size:30px}.verdict{font-size:34px}.clock{font-size:52px}
+  .codechip{font-size:18px;letter-spacing:4px;padding:5px 10px 5px 14px}
+  .logo span{display:none}
+}
+@media (max-width:520px){
+  .entry{flex-direction:column}.entry .btn{padding:14px}
+  .roombar .btn.small{padding:8px 10px}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>腦波<span class="w">對頻</span></h1>
-  <p class="sub">2–10 人詞語共鳴派對遊戲</p>
+<header class="bar">
+  <div class="logo">
+    <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+      <path d="M2 17c4-9 7-9 10 0s6 9 10 0 7-9 10 0" fill="none" stroke="#3d5afe" stroke-width="3" stroke-linecap="round"/>
+      <path d="M2 17c4 9 7 9 10 0s6-9 10 0 7 9 10 0" fill="none" stroke="#f7567c" stroke-width="3" stroke-linecap="round" opacity=".85"/>
+    </svg>
+    <span>腦波對頻</span>
+  </div>
+  <div class="roombar hidden" id="roombar">
+    <span class="conn hidden" id="conn">重新連線中</span>
+    <span class="codechip" id="roomCode" title="房間代碼">----</span>
+    <button class="btn line small" id="leaveBtn">離開房間</button>
+  </div>
+</header>
 
-  <section id="home">
-    <div class="card">
-      <label>你的暱稱</label>
-      <input id="name" maxlength="12" placeholder="例如：Danny">
-      <label>人數上限</label>
-      <div class="seg" id="maxSeg"></div>
-      <label>每輪時間</label>
-      <div class="seg" id="timeSeg"></div>
-      <label>局數</label>
-      <div class="seg" id="roundSeg"></div>
-      <label>起始題目</label>
-      <div class="seg" id="topicSeg"></div>
-      <button class="btn" id="createBtn">建立房間</button>
-      <div class="err" id="homeErr"></div>
+<main class="page">
+  <!-- HOME -->
+  <section id="home" class="home">
+    <div>
+      <div class="hero">
+        <h1>想到同一個詞，<br>就過關。</h1>
+        <p>每人秘密寫一個詞，一起揭曉，再從大家的詞之間找連結。2 至 10 人，手機電腦都可以玩。</p>
+      </div>
+      <div class="panel">
+        <h2>建立房間</h2>
+        <label class="lab" for="name">你的暱稱</label>
+        <input class="field" id="name" maxlength="12" placeholder="例如：Danny" autocomplete="nickname">
+        <label class="lab">人數上限</label>
+        <div class="seg" id="maxSeg"></div>
+        <label class="lab">每輪時間</label>
+        <div class="seg" id="timeSeg"></div>
+        <label class="lab">輪數上限</label>
+        <div class="seg" id="roundSeg"></div>
+        <label class="lab">第一輪</label>
+        <div class="seg" id="topicSeg"></div>
+        <div style="margin-top:24px"><button class="btn wide" id="createBtn">建立房間</button></div>
+        <div class="err" id="homeErr"></div>
+      </div>
     </div>
-    <div class="card">
-      <label>房間代碼</label>
-      <input id="joinCode" maxlength="4" placeholder="4 個英文字母" style="text-transform:uppercase;letter-spacing:4px">
-      <button class="btn ghost" id="joinBtn">加入房間</button>
-    </div>
-    <div class="card">
-      <b>玩法</b>
-      <ol class="rules">
-        <li>每輪每人秘密寫一個詞，時間到或全部提交就揭曉。</li>
-        <li>第一輪連結兩個起始題目詞；之後連結上一輪所有人的詞。</li>
-        <li>全員寫出同一個詞 = <b>過關</b>！否則繼續下一輪。</li>
-        <li>揭曉時會標出誰和誰撞了詞，幫大家慢慢收窄方向。</li>
-        <li>設了局數上限的話，用完仍未全員同詞就是<b>失敗</b>。</li>
-      </ol>
+    <div class="sidecol">
+      <div class="panel">
+        <h2>加入朋友的房間</h2>
+        <label class="lab" for="joinCode">房間代碼</label>
+        <div class="joinrow">
+          <input class="field" id="joinCode" maxlength="4" placeholder="ABCD" autocomplete="off">
+          <button class="btn" id="joinBtn">加入</button>
+        </div>
+        <div class="hint" style="margin-top:10px">用上面的暱稱加入。收到邀請連結的話，代碼會自動填好。</div>
+      </div>
+      <div class="panel">
+        <h2>玩法</h2>
+        <ol class="how">
+          <li><span>每人秘密寫一個詞，全部提交或時間到就一起揭曉。</span></li>
+          <li><span>第一輪連結兩個題目詞，之後連結上一輪大家寫的詞。</span></li>
+          <li><span>全員寫出同一個詞就<b>過關</b>。撞到同一個詞的人會用同一種顏色標出來。</span></li>
+          <li><span>設了輪數上限的話，用完仍未全員同詞就<b>失敗</b>。</span></li>
+        </ol>
+      </div>
     </div>
   </section>
 
-  <section id="room" class="hidden">
-    <div class="card">
-      <div class="small center">房間代碼</div>
-      <div class="code" id="roomCode">----</div>
-      <div class="row">
-        <button class="btn ghost" id="copyLink" style="margin-top:6px">複製邀請連結</button>
-        <button class="btn ghost" id="leaveBtn" style="margin-top:6px">離開</button>
+  <!-- ROOM -->
+  <section id="room" class="room hidden">
+    <div class="stage" id="stage">
+
+      <div id="lobby">
+        <p class="kicker" id="lobbyKicker"></p>
+        <h2 class="headline" id="lobbyTitle"></h2>
+        <div class="lobbygrid" id="lobbySeats"></div>
+        <div class="actions">
+          <button class="btn" id="startBtn">開始遊戲</button>
+          <button class="btn line" id="copyLink2">複製邀請連結</button>
+          <span class="hint" id="lobbyHint"></span>
+        </div>
       </div>
-      <div class="small center" id="roomInfo" style="margin-top:10px"></div>
-    </div>
 
-    <div class="card" id="lobby">
-      <b id="lobbyTitle"></b>
-      <ul class="players" id="lobbyPlayers"></ul>
-      <button class="btn" id="startBtn">開始遊戲</button>
-      <div class="small center" id="lobbyHint" style="margin-top:8px"></div>
-    </div>
-
-    <div class="card hidden" id="writing">
-      <div class="bar"><i id="barFill"></i></div>
-      <div class="small center" id="roundLabel"></div>
-      <div class="timer" id="timer">60</div>
-      <div id="prevWrap" class="hidden">
-        <div class="small center" id="prevLabel"></div>
-        <div class="prev" id="prevWords"></div>
+      <div id="writing" class="hidden">
+        <div class="timeline" id="timeline"><i id="barFill"></i></div>
+        <div class="wtop">
+          <div>
+            <p class="kicker" id="roundLabel"></p>
+            <h2 class="headline" id="promptLabel" style="margin:0"></h2>
+          </div>
+          <div class="clock" id="timer">60</div>
+        </div>
+        <div class="cue" id="prevWords"></div>
+        <div id="inputWrap" class="entry">
+          <input class="field" id="wordInput" maxlength="20" placeholder="輸入一個詞" autocomplete="off">
+          <button class="btn" id="submitBtn">提交</button>
+        </div>
+        <div id="waitWrap" class="sent hidden">
+          <span class="hint">你寫了</span><span class="myword" id="myWord"></span>
+        </div>
+        <div id="spectate" class="sent hidden"><span>你剛加入，下一輪開始一起玩。</span></div>
+        <div class="progress">
+          <span id="subCount"></span>
+          <div class="dots" id="subDots"></div>
+        </div>
+        <div class="err" id="writeErr"></div>
       </div>
-      <div id="inputWrap">
-        <label id="promptLabel"></label>
-        <input id="wordInput" maxlength="20" placeholder="輸入一個詞" autocomplete="off">
-        <button class="btn" id="submitBtn">提交</button>
+
+      <div id="reveal" class="hidden">
+        <p class="kicker" id="revealKicker"></p>
+        <h2 class="verdict" id="revealTitle"></h2>
+        <div class="tiles" id="revealWords"></div>
+        <div id="matchList"></div>
+        <div class="after actions">
+          <button class="btn" id="nextBtn">下一輪</button>
+          <button class="btn" id="restartBtn">再來一局</button>
+          <span class="hint" id="nextHint"></span>
+        </div>
       </div>
-      <div id="waitWrap" class="hidden center" style="margin-top:10px">
-        已提交：<b id="myWord"></b><br><span class="small">等待其他人…</span>
+    </div>
+
+    <aside class="side">
+      <div class="box">
+        <h3>玩家 <span id="pcount"></span></h3>
+        <ul class="plist" id="players"></ul>
       </div>
-      <div id="spectate" class="hidden center small" style="margin-top:10px">你剛加入，下一輪開始一起玩。</div>
-      <ul class="players" id="writePlayers"></ul>
-      <div class="err" id="writeErr"></div>
-    </div>
-
-    <div class="card hidden" id="reveal">
-      <b id="revealTitle"></b>
-      <div class="grid" id="revealWords"></div>
-      <div id="matchList"></div>
-      <button class="btn" id="nextBtn">下一輪</button>
-      <div class="small center" id="nextHint" style="margin-top:8px"></div>
-    </div>
-
-    <div class="card hidden" id="over">
-      <div class="small center" id="overSub"></div>
-      <div class="big" id="overTitle"></div>
-      <button class="btn" id="restartBtn">再來一局</button>
-      <div class="small center" id="restartHint" style="margin-top:8px"></div>
-    </div>
-
-
-    <div class="card hidden" id="histCard">
-      <b>紀錄</b>
-      <div class="hist" id="hist"></div>
-    </div>
+      <div class="box invite">
+        <h3>邀請朋友</h3>
+        <div class="url" id="inviteUrl"></div>
+        <button class="btn line small" id="copyLink">複製邀請連結</button>
+      </div>
+      <div class="box" id="histBox">
+        <h3>每輪紀錄</h3>
+        <ul class="hist" id="hist"></ul>
+      </div>
+    </aside>
   </section>
-</div>
-<div class="toast" id="toast"></div>
+</main>
+<div class="toast" id="toast" role="status"></div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function store(k, v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }catch(e){ return null; } }
+const GROUP = ['var(--g1)','var(--g2)','var(--g3)','var(--g4)','var(--g5)'];
+const AV = ['#3d5afe','#f7567c','#e89a00','#0f9d76','#9b5de5','#1b1f3b','#ff7a45','#00a3c4','#c2185b','#5b6284'];
+// Each player gets a distinct colour by join order
+function avColor(id){ const i = state ? state.players.findIndex(p=>p.id===id) : -1; return AV[(i<0?0:i)%AV.length]; }
+function avatar(p, size){ const sz = size ? `width:${size}px;height:${size}px;font-size:${Math.round(size*.55)}px;` : '';
+  return `<span class="av" style="${sz}background:${avColor(p.id)}">${esc([...p.name][0]||'?')}</span>`; }
 
 let playerId = store('bw_pid');
 if(!playerId){ playerId = 'p' + Math.random().toString(36).slice(2) + Date.now().toString(36); store('bw_pid', playerId); }
@@ -178,20 +309,21 @@ const opts = { maxPlayers: 10, roundSec: 60, maxRounds: 0, useTopic: true };
 function seg(el, values, key, fmt){
   values.forEach(v => {
     const b = document.createElement('button');
-    b.textContent = fmt(v); if(v===opts[key]) b.className='on';
+    b.type='button'; b.textContent = fmt(v);
+    if(v===opts[key]) b.className='on';
     b.onclick = () => { [...el.children].forEach(c=>c.className=''); b.className='on'; opts[key]=v; };
     el.appendChild(b);
   });
 }
 seg($('maxSeg'), [2,3,4,5,6,7,8,9,10], 'maxPlayers', v=>v);
-seg($('timeSeg'), [45,60,90], 'roundSec', v=>v+'秒');
-seg($('roundSeg'), [0,8,12], 'maxRounds', v=>v?v+'輪':'不限');
+seg($('timeSeg'), [45,60,90], 'roundSec', v=>v+' 秒');
+seg($('roundSeg'), [0,8,12], 'maxRounds', v=>v?v+' 輪':'不限');
 seg($('topicSeg'), [true,false], 'useTopic', v=>v?'隨機題目':'自由開始');
 
 function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),1800); }
 
-const socket = io();
-let state = null, mySubmitted = null, myRound = 0, tick = null;
+const socket = io({ reconnectionDelayMax: 3000 });
+let state = null, mySubmitted = null, myRound = 0, tick = null, busy = false;
 const urlCode = (new URLSearchParams(location.search).get('room') || '').toUpperCase();
 if(urlCode) $('joinCode').value = urlCode;
 
@@ -201,33 +333,59 @@ function getName(){
   store('bw_name', n); return n;
 }
 function handleJoin(res){
-  if(!res || res.error){ $('homeErr').textContent = (res && res.error) || '連線失敗'; return; }
+  busy = false; $('createBtn').disabled = false; $('joinBtn').disabled = false;
+  if(!res || res.error){ $('homeErr').textContent = (res && res.error) || '連線失敗，請再試一次'; return; }
   $('homeErr').textContent=''; store('bw_room', res.code);
   history.replaceState(null,'','?room='+res.code);
 }
-$('createBtn').onclick = () => { const name=getName(); if(name) socket.emit('create', {...opts, name, playerId}, handleJoin); };
+$('createBtn').onclick = () => {
+  if(busy) return; const name=getName(); if(!name) return;
+  busy = true; $('createBtn').disabled = true;
+  socket.emit('create', {...opts, name, playerId}, handleJoin);
+};
 $('joinBtn').onclick = () => {
-  const name=getName(); if(!name) return;
+  if(busy) return; const name=getName(); if(!name) return;
   const code=$('joinCode').value.trim().toUpperCase();
-  if(code.length!==4){ $('homeErr').textContent='房間代碼是 4 個字母'; return; }
+  if(code.length!==4){ $('homeErr').textContent='房間代碼是 4 個英文字母'; return; }
+  busy = true; $('joinBtn').disabled = true;
   socket.emit('join', {name, playerId, code}, handleJoin);
 };
 $('joinCode').addEventListener('keydown', e=>{ if(e.key==='Enter') $('joinBtn').click(); });
+$('name').addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.isComposing) (urlCode ? $('joinBtn') : $('createBtn')).click(); });
 
-socket.on('connect', () => {
+// ---- staying connected ----
+function rejoin(){
   const code = store('bw_room'), name = store('bw_name');
-  if(code && name && (!urlCode || urlCode===code))
-    socket.emit('join', {name, playerId, code}, res => { if(res && res.error) store('bw_room',''); });
-});
+  if(code && name) socket.emit('join', {name, playerId, code}, res => {
+    if(res && res.error){ store('bw_room',''); state=null; render(); toast(res.error); }
+  });
+}
+socket.on('connect', () => { $('conn').classList.add('hidden'); if(!urlCode || urlCode===store('bw_room')) rejoin(); });
+socket.on('disconnect', () => { if(state) $('conn').classList.remove('hidden'); });
+// Ask the server for the latest room state; rejoin if the server lost us
+function resync(){
+  if(!store('bw_room')) return;
+  if(!socket.connected){ socket.connect(); return; }
+  socket.emit('sync', res => {
+    if(!res) return;
+    if(res.lost) rejoin(); else if(res.state) applyState(res.state);
+  });
+}
+setInterval(resync, 4000);
+document.addEventListener('visibilitychange', () => { if(!document.hidden) resync(); });
+window.addEventListener('focus', resync);
+window.addEventListener('online', resync);
 
 $('leaveBtn').onclick = () => {
   socket.emit('leave'); store('bw_room',''); state=null; clearInterval(tick);
-  history.replaceState(null,'',location.pathname); show('home');
+  history.replaceState(null,'',location.pathname); render();
 };
-$('copyLink').onclick = async () => {
-  const link = location.origin + location.pathname + '?room=' + state.code;
-  try{ await navigator.clipboard.writeText(link); toast('已複製邀請連結'); } catch(e){ prompt('複製這個連結：', link); }
-};
+function inviteLink(){ return location.origin + location.pathname + '?room=' + state.code; }
+async function copyInvite(){
+  try{ await navigator.clipboard.writeText(inviteLink()); toast('已複製邀請連結'); }
+  catch(e){ prompt('複製這個連結：', inviteLink()); }
+}
+$('copyLink').onclick = copyInvite; $('copyLink2').onclick = copyInvite;
 $('startBtn').onclick = () => socket.emit('start');
 $('nextBtn').onclick = () => socket.emit('next');
 $('restartBtn').onclick = () => socket.emit('restart');
@@ -243,85 +401,107 @@ function submitWord(){
   });
 }
 
-function show(which){ $('home').classList.toggle('hidden', which!=='home'); $('room').classList.toggle('hidden', which!=='room'); }
-socket.on('state', s => { if(s.round!==myRound) mySubmitted=null; state=s; render(); });
+function applyState(s){ if(s.round!==myRound) mySubmitted=null; state=s; render(); }
+socket.on('state', applyState);
 
 function render(){
-  if(!state){ show('home'); return; }
-  show('room');
+  const inRoom = !!state;
+  $('home').classList.toggle('hidden', inRoom);
+  $('room').classList.toggle('hidden', !inRoom);
+  $('roombar').classList.toggle('hidden', !inRoom);
+  if(!inRoom){ clearInterval(tick); return; }
+
   const isHost = state.hostId===playerId;
   const live = state.players.filter(p=>p.connected);
   const me = state.players.find(p=>p.id===playerId) || {};
   $('roomCode').textContent = state.code;
-  const roundsTxt = state.maxRounds ? `${state.maxRounds} 輪上限` : '不限輪數';
-  $('roomInfo').textContent = `${live.length}/${state.maxPlayers} 人 · 每輪 ${state.roundSec} 秒 · ${roundsTxt}`;
-  ['lobby','writing','reveal','over'].forEach(id => $(id).classList.toggle('hidden', state.phase!==id));
-  $('histCard').classList.toggle('hidden', !state.history.length || state.phase==='writing');
+  $('inviteUrl').textContent = inviteLink();
+
+  // sidebar players
+  $('pcount').textContent = `${live.length} / ${state.maxPlayers}`;
+  const shown = state.players.filter(p => p.connected || state.phase!=='lobby');
+  $('players').innerHTML = shown.map(p => {
+    let st = '';
+    if(!p.connected) st = '<span class="st off">離線</span>';
+    else if(state.phase==='writing' && p.inRound) st = p.submitted ? '<span class="st done">已提交</span>' : '<span class="st">思考中</span>';
+    else if(state.phase==='writing') st = '<span class="st">下一輪加入</span>';
+    else if(p.id===state.hostId) st = '<span class="st host">房主</span>';
+    return `<li>${avatar(p)}<span class="pname">${esc(p.name)}${p.id===playerId?'<em>你</em>':''}</span>${st}</li>`;
+  }).join('');
+
+  // history
+  $('histBox').classList.toggle('hidden', !state.history.length);
+  $('hist').innerHTML = state.history.slice().reverse().map(h =>
+    `<li><b>第 ${h.round} 輪</b>${h.words.map(w=>esc(w||'—')).join('、')}${h.allSync?' <span class="pass">過關</span>':''}</li>`).join('');
+
+  const phase = state.phase==='over' ? 'reveal' : state.phase;
+  ['lobby','writing','reveal'].forEach(id => $(id).classList.toggle('hidden', phase!==id));
 
   if(state.phase==='lobby'){
-    $('lobbyTitle').textContent = `玩家（${live.length}/${state.maxPlayers}）`;
-    $('lobbyPlayers').innerHTML = live.map(p =>
-      `<li><span>${esc(p.name)}${p.id===playerId?'（你）':''}</span>${p.id===state.hostId?'<span class="tag host">房主</span>':''}</li>`).join('');
+    $('lobbyKicker').textContent = isHost ? '你是房主' : '已加入房間';
+    $('lobbyTitle').textContent = live.length<2 ? '等朋友加入…' : `${live.length} 人已到`;
+    const seats = live.map(p => `<span class="seat">${avatar(p)}${esc(p.name)}</span>`);
+    const empty = Math.max(0, Math.min(state.maxPlayers, 10) - live.length);
+    for(let i=0;i<empty;i++) seats.push('<span class="seat empty">空位</span>');
+    $('lobbySeats').innerHTML = seats.join('');
     $('startBtn').classList.toggle('hidden', !isHost);
     $('startBtn').disabled = live.length<2;
-    $('lobbyHint').textContent = isHost ? (live.length<2 ? '至少 2 人才能開始，分享代碼邀請朋友' : `${live.length} 人可以開始了，也可以再等人（最多 ${state.maxPlayers}）`) : '等待房主開始…';
+    $('lobbyHint').textContent = isHost ? (live.length<2 ? '至少 2 人才能開始' : '') : '等房主開始遊戲';
   }
 
   if(state.phase==='writing'){
-    $('roundLabel').textContent = state.maxRounds ? `第 ${state.round} / ${state.maxRounds} 輪` : `第 ${state.round} 輪`;
+    $('roundLabel').textContent = state.maxRounds ? `第 ${state.round} 輪，共 ${state.maxRounds} 輪` : `第 ${state.round} 輪`;
     const prev = state.history[state.history.length-1];
     if(prev){
-      $('prevWrap').classList.remove('hidden');
-      $('prevLabel').textContent='上一輪的詞';
-      $('prevWords').innerHTML = prev.words.filter(Boolean).map(w=>`<span class="chip">${esc(w)}</span>`).join('');
       $('promptLabel').textContent='寫一個連結這些詞的詞';
+      $('prevWords').innerHTML = prev.words.filter(Boolean).map(w=>`<span class="w">${esc(w)}</span>`).join('');
     } else if(state.topic){
-      $('prevWrap').classList.remove('hidden');
-      $('prevLabel').textContent='起始題目';
-      $('prevWords').innerHTML = state.topic.map(w=>`<span class="chip topic">${esc(w)}</span>`).join('<span style="align-self:center">＋</span>');
       $('promptLabel').textContent='寫一個連結這兩個詞的詞';
-    } else { $('prevWrap').classList.add('hidden'); $('promptLabel').textContent='先隨便想一個詞'; }
+      $('prevWords').innerHTML = state.topic.map(w=>`<span class="w topic">${esc(w)}</span>`).join('<span class="plus">＋</span>');
+    } else {
+      $('promptLabel').textContent='先隨便想一個詞';
+      $('prevWords').innerHTML = '';
+    }
     const done = mySubmitted || me.submitted;
     $('spectate').classList.toggle('hidden', !!me.inRound);
     $('inputWrap').classList.toggle('hidden', !!done || !me.inRound);
     $('waitWrap').classList.toggle('hidden', !done);
-    $('myWord').textContent = mySubmitted || '✓';
+    $('myWord').textContent = mySubmitted || '已提交';
     if(!done && me.inRound && document.activeElement!==$('wordInput')){ $('wordInput').value=''; setTimeout(()=>$('wordInput').focus(),50); }
-    $('writePlayers').innerHTML = state.players.filter(p=>p.inRound).map(p => {
-      const tag = !p.connected ? '<span class="tag off">離線</span>' : p.submitted ? '<span class="tag ok">已提交</span>' : '<span class="tag">思考中</span>';
-      return `<li><span>${esc(p.name)}${p.id===playerId?'（你）':''}</span>${tag}</li>`; }).join('');
+    const inR = state.players.filter(p=>p.inRound);
+    const sub = inR.filter(p=>p.submitted).length;
+    $('subCount').textContent = `${sub} / ${inR.length} 人已提交`;
+    $('subDots').innerHTML = inR.map(p=>`<i class="${p.submitted?'on':''}"></i>`).join('');
     startTimer();
   } else { clearInterval(tick); $('writeErr').textContent=''; }
 
   if(state.phase==='reveal' || state.phase==='over'){
     const r = state.reveal;
-    $('revealTitle').textContent = r.allSync ? `第 ${r.round} 輪揭曉 — 過關！` : `第 ${r.round} 輪揭曉 — 未過關，繼續聯想`;
-    $('revealWords').innerHTML = r.entries.map(e =>
-      `<div class="word ${!e.word?'none':e.matched?'hit':''}"><span class="small">${esc(e.name)}</span><b>${e.word?esc(e.word):'未提交'}</b></div>`).join('');
-    $('matchList').innerHTML = r.matches.length
-      ? r.matches.map(m=>`<div class="match">✦ <b>${esc(m.word)}</b> — ${m.names.map(esc).join('、')}（${m.size} 人）</div>`).join('')
-      : '<div class="small center" style="margin-top:10px">這輪沒有人撞詞</div>';
-    $('nextBtn').classList.toggle('hidden', !isHost || state.phase!=='reveal');
-    $('nextHint').textContent = isHost || state.phase!=='reveal' ? '' : '等待房主開始下一輪…';
+    // colour each matched group
+    const colorOf = {};
+    r.matches.forEach((m,i) => { colorOf[m.word] = GROUP[i % GROUP.length]; });
+    const key = w => (w||'').normalize('NFKC').trim().toLowerCase().replace(/\s+/g,'');
+    const byKey = {}; r.matches.forEach(m => { byKey[key(m.word)] = colorOf[m.word]; });
+    $('revealKicker').textContent = `第 ${r.round} 輪揭曉`;
+    const title = $('revealTitle');
+    if(state.result==='pass'){ title.className='verdict pass'; title.textContent=`過關！全員想到「${r.entries[0].word}」`; }
+    else if(state.result==='fail'){ title.className='verdict fail'; title.textContent=`失敗，${state.maxRounds} 輪用完了`; }
+    else { title.className='verdict'; title.textContent = r.matches.length ? '差一點，繼續收窄' : '大家想得很不一樣'; }
+    $('revealWords').innerHTML = r.entries.map((e,i) => {
+      const c = e.word && byKey[key(e.word)];
+      const p = state.players.find(x=>x.id===e.id) || {id:e.id,name:e.name};
+      return `<div class="tile ${!e.word?'none':c?'grp':''}" style="${c?`border-color:${c}`:''};animation-delay:${i*60}ms">
+        <div class="who">${avatar(p,20)}${esc(e.name)}</div>
+        <div class="word" style="${c?`color:${c}`:''}">${e.word?esc(e.word):'未提交'}</div></div>`;
+    }).join('');
+    $('matchList').innerHTML = r.matches.length && state.result!=='pass'
+      ? '<div class="legend">' + r.matches.map(m=>`<span style="background:${colorOf[m.word]}">${esc(m.word)}：${m.size} 人</span>`).join('') + '</div>'
+      : (state.result ? '' : '<p class="nomatch">這輪沒有人撞詞。看看大家的詞，找它們之間的連結。</p>');
+    const over = state.phase==='over';
+    $('nextBtn').classList.toggle('hidden', !isHost || over);
+    $('restartBtn').classList.toggle('hidden', !isHost || !over);
+    $('nextHint').textContent = isHost ? '' : (over ? '等房主開始新一局' : '等房主開始下一輪');
   }
-  if(state.phase==='over'){
-    $('reveal').classList.remove('hidden');
-    const r = state.reveal;
-    if(state.result==='pass'){
-      $('overTitle').className='big sync';
-      $('overTitle').textContent = `🎉 過關：${r.entries[0].word}`;
-      $('overSub').textContent = `第 ${r.round} 輪，${r.entries.length} 人腦波對頻成功！`;
-    } else {
-      $('overTitle').className='big fail';
-      $('overTitle').textContent = '💥 失敗';
-      $('overSub').textContent = `${state.maxRounds} 輪用完，還是沒能全員想到同一個詞`;
-    }
-    $('restartBtn').classList.toggle('hidden', !isHost);
-    $('restartHint').textContent = isHost ? '' : '等待房主開始新一局…';
-  }
-
-  $('hist').innerHTML = state.history.slice().reverse().map(h =>
-    `<div><b>第 ${h.round} 輪</b>　${h.words.map(w=>esc(w||'—')).join('、')}${h.allSync?' 🎉':h.best?` ✦${h.best}`:''}</div>`).join('');
 }
 
 function startTimer(){
@@ -332,10 +512,12 @@ function startTimer(){
     const left = Math.ceil(ms/1000);
     $('timer').textContent = left;
     $('timer').classList.toggle('low', left<=10);
+    $('timeline').classList.toggle('low', left<=10);
     $('barFill').style.width = (100*ms/(state.roundSec*1000)) + '%';
   };
   upd(); tick = setInterval(upd, 250);
 }
+render();
 </script>
 </body>
 </html>

@@ -21,7 +21,8 @@ const TOPICS = [
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 const server = http.createServer(app);
-const io = new Server(server);
+// Short ping so dead connections (e.g. a phone switching apps) are noticed within ~15s
+const io = new Server(server, { pingInterval: 10000, pingTimeout: 5000 });
 const rooms = new Map();
 
 function makeCode() {
@@ -116,6 +117,8 @@ io.on('connection', socket => {
   let room = null, me = null;
 
   function attach(r, playerId, name) {
+    // If this connection was in a different room, leave it first
+    if (room && room !== r) leave(true);
     let p = r.players.find(x => x.id === playerId);
     if (p) { p.connected = true; p.socketId = socket.id; if (name) p.name = name; }
     else {
@@ -125,6 +128,7 @@ io.on('connection', socket => {
     }
     room = r; me = p; r.lastActive = Date.now();
     socket.join(r.code);
+    if (r.ownerId === playerId) r.hostId = playerId; // room creator gets host back on return
     ensureHost(r);
     broadcast(r);
     return { ok: true, code: r.code };
@@ -134,7 +138,7 @@ io.on('connection', socket => {
     const name = clean(d.name, 12), playerId = clean(d.playerId, 40);
     if (!name || !playerId) return cb && cb({ error: '請輸入暱稱' });
     const r = {
-      code: makeCode(), hostId: playerId,
+      code: makeCode(), hostId: playerId, ownerId: playerId,
       maxPlayers: Math.min(MAX_PLAYERS, Math.max(MIN_PLAYERS, parseInt(d.maxPlayers, 10) || MAX_PLAYERS)),
       roundSec: [45, 60, 90].includes(Number(d.roundSec)) ? Number(d.roundSec) : 60,
       maxRounds: [0, 8, 12].includes(Number(d.maxRounds)) ? Number(d.maxRounds) : 0, // 0 = unlimited
@@ -188,6 +192,15 @@ io.on('connection', socket => {
     Object.assign(room, { phase: 'lobby', round: 0, result: null, history: [], lastReveal: null,
       topic: null, participants: [], submissions: new Map() });
     broadcast(room);
+  });
+
+  // Clients poll this; if the server no longer has them in a room they rejoin
+  socket.on('sync', (a, b) => {
+    const cb = typeof a === 'function' ? a : b;
+    if (typeof cb !== 'function') return;
+    if (room && me && me.connected && me.socketId === socket.id && rooms.get(room.code) === room)
+      cb({ state: publicState(room) });
+    else cb({ lost: true });
   });
 
   socket.on('leave', () => leave(true));
