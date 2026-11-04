@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>腦波對頻</title>
+<meta name="theme-color" content="#101828">
+<style>
+:root{--bg:#101828;--card:#1a2540;--ink:#f2efe8;--muted:#98a6c4;--accent:#7c5cff;--accent2:#22d3b6;
+  --gold:#ffc94d;--bad:#ff6b6b;--line:#2a3a60;--field:#0c1324}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,"PingFang HK","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+body{background:radial-gradient(1200px 500px at 50% -200px,#2a2160 0%,var(--bg) 60%) fixed}
+.wrap{max-width:540px;margin:0 auto;padding:22px 16px 48px}
+h1{font-size:32px;margin:6px 0 2px;letter-spacing:3px}
+h1 .w{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}
+label{display:block;font-size:14px;color:var(--muted);margin:14px 0 6px}
+label:first-child{margin-top:0}
+input{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--field);color:var(--ink);font-size:17px}
+input:focus{outline:2px solid var(--accent);border-color:transparent}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{flex:1 0 auto;min-width:42px;padding:10px 6px;border-radius:10px;border:1px solid var(--line);
+  background:var(--field);color:var(--ink);font-size:15px;cursor:pointer}
+.seg button.on{background:var(--accent);border-color:var(--accent);font-weight:700}
+.btn{display:block;width:100%;padding:14px;border:0;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;
+  margin-top:14px;background:linear-gradient(90deg,var(--accent),#9b7dff);color:#fff}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.code{font-size:44px;letter-spacing:10px;font-weight:800;text-align:center;color:var(--accent2);margin:2px 0}
+.small{font-size:13px;color:var(--muted)}
+.center{text-align:center}
+.players{list-style:none;padding:0;margin:8px 0 0}
+.players li{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);gap:8px}
+.players li:last-child{border:0}
+.tag{font-size:12px;padding:3px 9px;border-radius:99px;background:var(--field);color:var(--muted);white-space:nowrap}
+.tag.ok{background:var(--accent2);color:#06231e}.tag.host{background:var(--accent);color:#fff}.tag.off{color:var(--bad)}
+.timer{font-size:52px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums}
+.timer.low{color:var(--bad)}
+.bar{height:6px;background:var(--field);border-radius:99px;overflow:hidden;margin-bottom:10px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .25s linear}
+.prev{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:8px 0 4px}
+.chip{background:var(--field);border:1px solid var(--line);border-radius:99px;padding:6px 13px;font-size:16px}
+.chip.topic{border-color:var(--gold);color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;margin-top:10px}
+.word{background:var(--field);border:1px solid var(--line);border-radius:14px;padding:11px;text-align:center;animation:pop .35s ease both}
+.word b{display:block;font-size:19px;margin:3px 0;word-break:break-all}
+.word.hit{border-color:var(--accent2)}
+.word.none b{color:var(--bad);font-size:14px}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+.match{background:rgba(34,211,182,.12);border:1px solid rgba(34,211,182,.4);border-radius:12px;padding:9px 12px;margin-top:8px;font-size:15px}
+.big{font-size:38px;font-weight:800;margin:6px 0;text-align:center}
+.big.sync{color:var(--accent2)}.big.fail{color:var(--bad)}
+.hist div{padding:6px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.hist div:last-child{border:0}
+.err{color:var(--bad);min-height:20px;margin-top:8px;font-size:14px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);
+  padding:10px 16px;border-radius:99px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+.hidden{display:none!important}
+.rules{margin:8px 0 0;padding-left:20px}.rules li{margin:6px 0;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>腦波<span class="w">對頻</span></h1>
+  <p class="sub">2–10 人詞語共鳴派對遊戲</p>
+
+  <section id="home">
+    <div class="card">
+      <label>你的暱稱</label>
+      <input id="name" maxlength="12" placeholder="例如：Danny">
+      <label>人數上限</label>
+      <div class="seg" id="maxSeg"></div>
+      <label>每輪時間</label>
+      <div class="seg" id="timeSeg"></div>
+      <label>局數</label>
+      <div class="seg" id="roundSeg"></div>
+      <label>起始題目</label>
+      <div class="seg" id="topicSeg"></div>
+      <button class="btn" id="createBtn">建立房間</button>
+      <div class="err" id="homeErr"></div>
+    </div>
+    <div class="card">
+      <label>房間代碼</label>
+      <input id="joinCode" maxlength="4" placeholder="4 個英文字母" style="text-transform:uppercase;letter-spacing:4px">
+      <button class="btn ghost" id="joinBtn">加入房間</button>
+    </div>
+    <div class="card">
+      <b>玩法</b>
+      <ol class="rules">
+        <li>每輪每人秘密寫一個詞，時間到或全部提交就揭曉。</li>
+        <li>第一輪連結兩個起始題目詞；之後連結上一輪所有人的詞。</li>
+        <li>全員寫出同一個詞 = <b>過關</b>！否則繼續下一輪。</li>
+        <li>揭曉時會標出誰和誰撞了詞，幫大家慢慢收窄方向。</li>
+        <li>設了局數上限的話，用完仍未全員同詞就是<b>失敗</b>。</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="room" class="hidden">
+    <div class="card">
+      <div class="small center">房間代碼</div>
+      <div class="code" id="roomCode">----</div>
+      <div class="row">
+        <button class="btn ghost" id="copyLink" style="margin-top:6px">複製邀請連結</button>
+        <button class="btn ghost" id="leaveBtn" style="margin-top:6px">離開</button>
+      </div>
+      <div class="small center" id="roomInfo" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card" id="lobby">
+      <b id="lobbyTitle"></b>
+      <ul class="players" id="lobbyPlayers"></ul>
+      <button class="btn" id="startBtn">開始遊戲</button>
+      <div class="small center" id="lobbyHint" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card hidden" id="writing">
+      <div class="bar"><i id="barFill"></i></div>
+      <div class="small center" id="roundLabel"></div>
+      <div class="timer" id="timer">60</div>
+      <div id="prevWrap" class="hidden">
+        <div class="small center" id="prevLabel"></div>
+        <div class="prev" id="prevWords"></div>
+      </div>
+      <div id="inputWrap">
+        <label id="promptLabel"></label>
+        <input id="wordInput" maxlength="20" placeholder="輸入一個詞" autocomplete="off">
+        <button class="btn" id="submitBtn">提交</button>
+      </div>
+      <div id="waitWrap" class="hidden center" style="margin-top:10px">
+        已提交：<b id="myWord"></b><br><span class="small">等待其他人…</span>
+      </div>
+      <div id="spectate" class="hidden center small" style="margin-top:10px">你剛加入，下一輪開始一起玩。</div>
+      <ul class="players" id="writePlayers"></ul>
+      <div class="err" id="writeErr"></div>
+    </div>
+
+    <div class="card hidden" id="reveal">
+      <b id="revealTitle"></b>
+      <div class="grid" id="revealWords"></div>
+      <div id="matchList"></div>
+      <button class="btn" id="nextBtn">下一輪</button>
+      <div class="small center" id="nextHint" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card hidden" id="over">
+      <div class="small center" id="overSub"></div>
+      <div class="big" id="overTitle"></div>
+      <button class="btn" id="restartBtn">再來一局</button>
+      <div class="small center" id="restartHint" style="margin-top:8px"></div>
+    </div>
+
+
+    <div class="card hidden" id="histCard">
+      <b>紀錄</b>
+      <div class="hist" id="hist"></div>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function store(k, v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }catch(e){ return null; } }
+
+let playerId = store('bw_pid');
+if(!playerId){ playerId = 'p' + Math.random().toString(36).slice(2) + Date.now().toString(36); store('bw_pid', playerId); }
+$('name').value = store('bw_name') || '';
+
+const opts = { maxPlayers: 10, roundSec: 60, maxRounds: 0, useTopic: true };
+function seg(el, values, key, fmt){
+  values.forEach(v => {
+    const b = document.createElement('button');
+    b.textContent = fmt(v); if(v===opts[key]) b.className='on';
+    b.onclick = () => { [...el.children].forEach(c=>c.className=''); b.className='on'; opts[key]=v; };
+    el.appendChild(b);
+  });
+}
+seg($('maxSeg'), [2,3,4,5,6,7,8,9,10], 'maxPlayers', v=>v);
+seg($('timeSeg'), [45,60,90], 'roundSec', v=>v+'秒');
+seg($('roundSeg'), [0,8,12], 'maxRounds', v=>v?v+'輪':'不限');
+seg($('topicSeg'), [true,false], 'useTopic', v=>v?'隨機題目':'自由開始');
+
+function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),1800); }
+
+const socket = io();
+let state = null, mySubmitted = null, myRound = 0, tick = null;
+const urlCode = (new URLSearchParams(location.search).get('room') || '').toUpperCase();
+if(urlCode) $('joinCode').value = urlCode;
+
+function getName(){
+  const n = $('name').value.trim();
+  if(!n){ $('homeErr').textContent='請先輸入暱稱'; $('name').focus(); return null; }
+  store('bw_name', n); return n;
+}
+function handleJoin(res){
+  if(!res || res.error){ $('homeErr').textContent = (res && res.error) || '連線失敗'; return; }
+  $('homeErr').textContent=''; store('bw_room', res.code);
+  history.replaceState(null,'','?room='+res.code);
+}
+$('createBtn').onclick = () => { const name=getName(); if(name) socket.emit('create', {...opts, name, playerId}, handleJoin); };
+$('joinBtn').onclick = () => {
+  const name=getName(); if(!name) return;
+  const code=$('joinCode').value.trim().toUpperCase();
+  if(code.length!==4){ $('homeErr').textContent='房間代碼是 4 個字母'; return; }
+  socket.emit('join', {name, playerId, code}, handleJoin);
+};
+$('joinCode').addEventListener('keydown', e=>{ if(e.key==='Enter') $('joinBtn').click(); });
+
+socket.on('connect', () => {
+  const code = store('bw_room'), name = store('bw_name');
+  if(code && name && (!urlCode || urlCode===code))
+    socket.emit('join', {name, playerId, code}, res => { if(res && res.error) store('bw_room',''); });
+});
+
+$('leaveBtn').onclick = () => {
+  socket.emit('leave'); store('bw_room',''); state=null; clearInterval(tick);
+  history.replaceState(null,'',location.pathname); show('home');
+};
+$('copyLink').onclick = async () => {
+  const link = location.origin + location.pathname + '?room=' + state.code;
+  try{ await navigator.clipboard.writeText(link); toast('已複製邀請連結'); } catch(e){ prompt('複製這個連結：', link); }
+};
+$('startBtn').onclick = () => socket.emit('start');
+$('nextBtn').onclick = () => socket.emit('next');
+$('restartBtn').onclick = () => socket.emit('restart');
+$('submitBtn').onclick = submitWord;
+$('wordInput').addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.isComposing) submitWord(); });
+
+function submitWord(){
+  const w = $('wordInput').value.trim();
+  if(!w){ $('writeErr').textContent='請輸入一個詞'; return; }
+  socket.emit('submit', w, res => {
+    if(res && res.error){ $('writeErr').textContent=res.error; return; }
+    mySubmitted=w; myRound=state.round; $('writeErr').textContent=''; render();
+  });
+}
+
+function show(which){ $('home').classList.toggle('hidden', which!=='home'); $('room').classList.toggle('hidden', which!=='room'); }
+socket.on('state', s => { if(s.round!==myRound) mySubmitted=null; state=s; render(); });
+
+function render(){
+  if(!state){ show('home'); return; }
+  show('room');
+  const isHost = state.hostId===playerId;
+  const live = state.players.filter(p=>p.connected);
+  const me = state.players.find(p=>p.id===playerId) || {};
+  $('roomCode').textContent = state.code;
+  const roundsTxt = state.maxRounds ? `${state.maxRounds} 輪上限` : '不限輪數';
+  $('roomInfo').textContent = `${live.length}/${state.maxPlayers} 人 · 每輪 ${state.roundSec} 秒 · ${roundsTxt}`;
+  ['lobby','writing','reveal','over'].forEach(id => $(id).classList.toggle('hidden', state.phase!==id));
+  $('histCard').classList.toggle('hidden', !state.history.length || state.phase==='writing');
+
+  if(state.phase==='lobby'){
+    $('lobbyTitle').textContent = `玩家（${live.length}/${state.maxPlayers}）`;
+    $('lobbyPlayers').innerHTML = live.map(p =>
+      `<li><span>${esc(p.name)}${p.id===playerId?'（你）':''}</span>${p.id===state.hostId?'<span class="tag host">房主</span>':''}</li>`).join('');
+    $('startBtn').classList.toggle('hidden', !isHost);
+    $('startBtn').disabled = live.length<2;
+    $('lobbyHint').textContent = isHost ? (live.length<2 ? '至少 2 人才能開始，分享代碼邀請朋友' : `${live.length} 人可以開始了，也可以再等人（最多 ${state.maxPlayers}）`) : '等待房主開始…';
+  }
+
+  if(state.phase==='writing'){
+    $('roundLabel').textContent = state.maxRounds ? `第 ${state.round} / ${state.maxRounds} 輪` : `第 ${state.round} 輪`;
+    const prev = state.history[state.history.length-1];
+    if(prev){
+      $('prevWrap').classList.remove('hidden');
+      $('prevLabel').textContent='上一輪的詞';
+      $('prevWords').innerHTML = prev.words.filter(Boolean).map(w=>`<span class="chip">${esc(w)}</span>`).join('');
+      $('promptLabel').textContent='寫一個連結這些詞的詞';
+    } else if(state.topic){
+      $('prevWrap').classList.remove('hidden');
+      $('prevLabel').textContent='起始題目';
+      $('prevWords').innerHTML = state.topic.map(w=>`<span class="chip topic">${esc(w)}</span>`).join('<span style="align-self:center">＋</span>');
+      $('promptLabel').textContent='寫一個連結這兩個詞的詞';
+    } else { $('prevWrap').classList.add('hidden'); $('promptLabel').textContent='先隨便想一個詞'; }
+    const done = mySubmitted || me.submitted;
+    $('spectate').classList.toggle('hidden', !!me.inRound);
+    $('inputWrap').classList.toggle('hidden', !!done || !me.inRound);
+    $('waitWrap').classList.toggle('hidden', !done);
+    $('myWord').textContent = mySubmitted || '✓';
+    if(!done && me.inRound && document.activeElement!==$('wordInput')){ $('wordInput').value=''; setTimeout(()=>$('wordInput').focus(),50); }
+    $('writePlayers').innerHTML = state.players.filter(p=>p.inRound).map(p => {
+      const tag = !p.connected ? '<span class="tag off">離線</span>' : p.submitted ? '<span class="tag ok">已提交</span>' : '<span class="tag">思考中</span>';
+      return `<li><span>${esc(p.name)}${p.id===playerId?'（你）':''}</span>${tag}</li>`; }).join('');
+    startTimer();
+  } else { clearInterval(tick); $('writeErr').textContent=''; }
+
+  if(state.phase==='reveal' || state.phase==='over'){
+    const r = state.reveal;
+    $('revealTitle').textContent = r.allSync ? `第 ${r.round} 輪揭曉 — 過關！` : `第 ${r.round} 輪揭曉 — 未過關，繼續聯想`;
+    $('revealWords').innerHTML = r.entries.map(e =>
+      `<div class="word ${!e.word?'none':e.matched?'hit':''}"><span class="small">${esc(e.name)}</span><b>${e.word?esc(e.word):'未提交'}</b></div>`).join('');
+    $('matchList').innerHTML = r.matches.length
+      ? r.matches.map(m=>`<div class="match">✦ <b>${esc(m.word)}</b> — ${m.names.map(esc).join('、')}（${m.size} 人）</div>`).join('')
+      : '<div class="small center" style="margin-top:10px">這輪沒有人撞詞</div>';
+    $('nextBtn').classList.toggle('hidden', !isHost || state.phase!=='reveal');
+    $('nextHint').textContent = isHost || state.phase!=='reveal' ? '' : '等待房主開始下一輪…';
+  }
+  if(state.phase==='over'){
+    $('reveal').classList.remove('hidden');
+    const r = state.reveal;
+    if(state.result==='pass'){
+      $('overTitle').className='big sync';
+      $('overTitle').textContent = `🎉 過關：${r.entries[0].word}`;
+      $('overSub').textContent = `第 ${r.round} 輪，${r.entries.length} 人腦波對頻成功！`;
+    } else {
+      $('overTitle').className='big fail';
+      $('overTitle').textContent = '💥 失敗';
+      $('overSub').textContent = `${state.maxRounds} 輪用完，還是沒能全員想到同一個詞`;
+    }
+    $('restartBtn').classList.toggle('hidden', !isHost);
+    $('restartHint').textContent = isHost ? '' : '等待房主開始新一局…';
+  }
+
+  $('hist').innerHTML = state.history.slice().reverse().map(h =>
+    `<div><b>第 ${h.round} 輪</b>　${h.words.map(w=>esc(w||'—')).join('、')}${h.allSync?' 🎉':h.best?` ✦${h.best}`:''}</div>`).join('');
+}
+
+function startTimer(){
+  clearInterval(tick);
+  const upd = () => {
+    if(!state || !state.deadline) return;
+    const ms = Math.max(0, state.deadline-Date.now());
+    const left = Math.ceil(ms/1000);
+    $('timer').textContent = left;
+    $('timer').classList.toggle('low', left<=10);
+    $('barFill').style.width = (100*ms/(state.roundSec*1000)) + '%';
+  };
+  upd(); tick = setInterval(upd, 250);
+}
+</script>
+</body>
+</html>
